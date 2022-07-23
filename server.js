@@ -56,17 +56,122 @@ const viewAllEmployees = () => {
     })
 }
 
-const addDepartment = (dept_name) => {
-    connection.query(`INSERT INTO departments (dept_name)
-                        VALUES ("${dept_name}")`, (err, res) => {
-                            if(err){
-                                console.error(err)
-                            }
-                            console.log('Success! Server status: ' + res.serverStatus)
-                        })
+const  addDepartment = () => {
+
+    inquirer
+    .prompt([
+      {
+        type: 'input',
+        message: 'What would you like to name the department?',
+        name: 'dept_name',
+      },
+    ])
+    .then((response) => addDeptQuery(response.dept_name)
+    );
+}
+    
+const  addRole = () => {
+
+    inquirer
+    .prompt([
+      {
+        type: 'input',
+        message: 'What is the title of the role?',
+        name: 'title',
+      },
+      {
+        type: 'number',
+        message: 'What is the salary?',
+        name: 'salary',
+      },
+      {
+        type: 'number',
+        message: 'What is the department id?',
+        name: 'department_id',
+      },
+    ])
+    .then((response) => addRoleQuery(response.title, response.salary, response.department_id)
+    );
 }
 
-const addRole = (title, salary, department_id) => {
+const  addEmployee = () => {
+    inquirer
+    .prompt([
+        {
+            type: 'input',
+            message: 'What is the first name of the employee?',
+            name: 'first_name',
+        },
+        {
+            type: 'input',
+            message: 'What is the last name of the employee?',
+            name: 'last_name',
+        }])
+    .then( res => {
+        let soFar = [res.first_name, res.last_name];
+        connection.query("SELECT title, id FROM roles", (error, response) => {
+            if (error) console.error(error)
+            inquirer.prompt([{
+                name: 'role',
+                type: 'list',
+                choices: () => {
+                    let roleArr = response.map(({title, id}) => ({name: title, value: id}))
+                    return roleArr
+                    }
+            }])
+            .then( response => {
+                soFar.push(response.role)
+                connection.query("SELECT first_name, last_name, id FROM employees", (error, response) => {
+                    if (error) console.error(error)
+                    inquirer.prompt([{
+                        name: 'manager',
+                        type: 'list',
+                        choices: () => {
+                            let managerArr = response.map(({first_name, last_name, id}) => ({
+                                name:(`${first_name} ${last_name}`),
+                                value: id,
+
+                            }))
+                            return managerArr
+                            }
+                              
+                        }
+                    ]).then(response => {soFar.push(response.manager)
+                        console.log(soFar)
+                        addEmployeeQuery(soFar[0], soFar[1], soFar[2], soFar[3])
+                   }
+                    )
+                })
+            })
+        })
+    })
+}
+
+
+let = getChoicesManagers = () => {
+
+    connection.query(`SELECT * FROM employees`, (err, res) => {
+        if (err) {
+          console.error(err)
+        }
+        console.log("\n")
+        let arr;
+        console.log('got here')
+        res.forEach(element => {
+            console.log({name: element.first_name + " " + element.last_name,
+            value: element.id
+        })
+            
+        })
+
+        console.log(arr)
+        return arr
+      //   mainMenu()
+      })
+
+}
+
+const addRoleQuery = (title, salary, department_id) => {
     connection.query(`INSERT INTO roles (title, salary, department_id)
                         VALUES ("${title}", ${salary}, ${department_id})`, (err, res) => {
                             if(err){
@@ -75,9 +180,14 @@ const addRole = (title, salary, department_id) => {
                             console.log('Success!' + res)
                             
                         })
+
+    console.log('\n')
+    console.log('Successfully added role')
+    console.log('\n')
+    init()
 }
 
-const addEmployee = (first_name, last_name, role_id, manager_id) => {
+const addEmployeeQuery = (first_name, last_name, role_id, manager_id) => {
     connection.query(`INSERT INTO employees (first_name, last_name, role_id, manager_id)
                         VALUES ("${first_name}", "${last_name}", ${role_id}, ${manager_id})`, (err, res) => {
                             if(err){
@@ -85,6 +195,11 @@ const addEmployee = (first_name, last_name, role_id, manager_id) => {
                             }
                             console.log('Success!' + res)
                         })
+
+                        console.log('\n')
+                        console.log('Successfully added employee')
+                        console.log('\n')
+                        init()
 }
 
 
@@ -170,6 +285,28 @@ const init = async () => {
     console.br
     handleChoice(result.doWhat);
   };
+
+
+  const addDeptQuery =  (department_name) => {
+
+    connection.query(`INSERT INTO departments (dept_name)
+                        VALUES ("${department_name}")`, (err, res) => {
+                            if(err){
+                                console.error(err)
+                            }
+                            console.log('Success! Server status: ' + res.serverStatus)
+                        });
+    console.log('\n')
+    console.log('Successfully added department')
+    console.log('\n')
+    init()
+
+  };
+
+
+
+
+
 
 
   const handleChoice =  (choice) => {
