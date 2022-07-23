@@ -1,6 +1,13 @@
 // const inquirer = require('inquirer')
-const connection = require('./config/config.js')
-const mysql = require('mysql2')
+const connection = require('./config/config.js');
+const mysql = require('mysql2');
+const inquirer = require('inquirer');
+const { resolve } = require('path');
+
+
+
+
+
 
 
 
@@ -9,16 +16,29 @@ const viewAllDepartments = () => {
       if (err) {
         console.error(err)
       }
+      console.log("\n")
       console.table(res)
+      console.log("\n")
+      init();
     //   mainMenu()
     })
 }
+
+
+
+
+
+
+
 const viewAllRoles = () => {
     connection.query(`SELECT * FROM ROLES`, (err, res) => {
       if (err) {
         console.error(err)
       }
-      console.table(res)
+      console.log("\n")
+      console.table(res);
+      console.log("\n")
+      init();
     //   mainMenu()
     })
 }
@@ -28,7 +48,10 @@ const viewAllEmployees = () => {
       if (err) {
         console.error(err)
       }
-      console.table(res)
+      console.log("\n")
+      console.table(res);
+      console.log("\n")
+      init();
     //   mainMenu()
     })
 }
@@ -50,6 +73,7 @@ const addRole = (title, salary, department_id) => {
                                 console.error(err)
                             }
                             console.log('Success!' + res)
+                            
                         })
 }
 
@@ -101,19 +125,88 @@ const deleteEmployee = (employee_id) => {
 }
 
 
-// viewAllDepartments();
-// viewAllRoles();
-// viewAllEmployees();
+const init = async () => {
+    const result = await inquirer.prompt([
+      {
+        message: 'What would you like to do?',
+        type: 'list',
+        name: 'doWhat',
+        choices: [
+          {
+            name: 'View all departments',
+            value: 'viewAllDepartments',
+          },
+          {
+            name: 'View all roles',
+            value: 'viewAllRoles',
+          },
+          {
+            name: 'View all employees',
+            value: 'viewAllEmployees',
+          },
+          {
+            name: 'Add a department',
+            value: 'addDepartment',
+          },
+          {
+            name: 'Add a role',
+            value: 'addRole',
+          },
+          {
+            name: 'Add an employee',
+            value: 'addEmployee',
+          },
+          {
+            name: 'Edit employee role',
+            value: 'editEmployee',
+          },
+          {
+            name: 'Quit',
+            value: 'quit',
+          },
+        ],
+      },
+    ]);
+    console.br
+    handleChoice(result.doWhat);
+  };
 
-// addDepartment('HR');
-// addRole('VP', 200000, 5);
-// addEmployee('Marge', "Simpson", 9, 2)
 
-// viewAllDepartments();
-// addEmployee('Marge', "Simpson", 5, 2)
+  const handleChoice =  (choice) => {
+    (choice === 'quit') ? console.log('See you next time!') :  again(choice)
+  }
 
-viewAllEmployees();
 
-editEmployeeRole(1,8);
+  let switchy = (choice) => {
+    switch  (choice) {
+        case 'viewAllDepartments':  viewAllDepartments();
+        break;
+        case 'viewAllEmployees':  viewAllEmployees();
+        break;
+        case 'viewAllRoles' : viewAllRoles();
+        break;
+        case 'addDepartment' :  addDepartment('test');
+        break;
+        case 'addRole' :  addRole('Test', 90000, 1);
+        break;
+        case 'addEmployee' : addEmployee('Test', "Person", "1", "1")
+        break;
+        default: console.log('this is default'); 
+    }
+  }
 
-viewAllEmployees();
+
+
+
+
+   function again(choice)  {
+    switchy(choice)
+        
+  }
+
+  
+
+
+
+
+init()
