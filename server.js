@@ -2,12 +2,6 @@
 const connection = require('./config/config.js');
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
-const { resolve } = require('path');
-
-
-
-
-
 
 
 
@@ -20,15 +14,8 @@ const viewAllDepartments = () => {
       console.table(res)
       console.log("\n")
       init();
-    //   mainMenu()
     })
 }
-
-
-
-
-
-
 
 const viewAllRoles = () => {
     connection.query(`SELECT * FROM ROLES`, (err, res) => {
@@ -39,7 +26,6 @@ const viewAllRoles = () => {
       console.table(res);
       console.log("\n")
       init();
-    //   mainMenu()
     })
 }
 
@@ -52,12 +38,10 @@ const viewAllEmployees = () => {
       console.table(res);
       console.log("\n")
       init();
-    //   mainMenu()
     })
 }
 
 const  addDepartment = () => {
-
     inquirer
     .prompt([
       {
@@ -71,7 +55,6 @@ const  addDepartment = () => {
 }
     
 const  addRole = () => {
-
     inquirer
     .prompt([
       {
@@ -130,16 +113,16 @@ const  addEmployee = () => {
                             let managerArr = response.map(({first_name, last_name, id}) => ({
                                 name:(`${first_name} ${last_name}`),
                                 value: id,
-
                             }))
                             return managerArr
                             }
                               
                         }
-                    ]).then(response => {soFar.push(response.manager)
+                    ]).then(response => {
+                        soFar.push(response.manager)
                         console.log(soFar)
                         addEmployeeQuery(soFar[0], soFar[1], soFar[2], soFar[3])
-                   }
+                      }
                     )
                 })
             })
@@ -147,28 +130,21 @@ const  addEmployee = () => {
     })
 }
 
-
 let = getChoicesManagers = () => {
-
     connection.query(`SELECT * FROM employees`, (err, res) => {
         if (err) {
           console.error(err)
         }
         console.log("\n")
         let arr;
-        console.log('got here')
         res.forEach(element => {
             console.log({name: element.first_name + " " + element.last_name,
             value: element.id
         })
-            
         })
-
         console.log(arr)
         return arr
-      //   mainMenu()
       })
-
 }
 
 const addRoleQuery = (title, salary, department_id) => {
@@ -180,7 +156,6 @@ const addRoleQuery = (title, salary, department_id) => {
                             console.log('Success!' + res)
                             
                         })
-
     console.log('\n')
     console.log('Successfully added role')
     console.log('\n')
@@ -195,7 +170,6 @@ const addEmployeeQuery = (first_name, last_name, role_id, manager_id) => {
                             }
                             console.log('Success!' + res)
                         })
-
                         console.log('\n')
                         console.log('Successfully added employee')
                         console.log('\n')
@@ -203,15 +177,62 @@ const addEmployeeQuery = (first_name, last_name, role_id, manager_id) => {
 }
 
 
-const editEmployeeRole = (employee_id, role_id) => {
-    connection.query(`UPDATE employees SET role_id =${role_id} WHERE id=${employee_id};`, (err, res) => {
-        if(err){
-            console.error(err)
-        } console.log('Success' + res)
+const editEmployeeRole = () => {
+
+  connection.query("SELECT * FROM employees", (error, response) => {
+    if (error) console.error(error)
+    inquirer.prompt([{
+      name: 'Choose Employee',
+      type: 'list',
+      choices: () => {
+          let employeeArr = response.map(({first_name, last_name, id}) => ({
+              name:(`${first_name} ${last_name}`),
+              value: id,
+          }))
+          return employeeArr
+          }
+            
+      }
+  ]).then(response => {
+    let soFar = response;
+    console.log(soFar)
+    connection.query("SELECT * FROM roles", (error, response) => {
+      if(error) console.error(error)
+      inquirer.prompt([{
+        name: 'Choose new role',
+        type: 'list',
+        choices: ()=> {
+          let rolesArr = response.map(({title, id}) => ({
+            name: (`${title}`),
+            value: id,
+          }))
+          console.log(rolesArr)
+          return rolesArr
+        }
+      }]).then(response => {
+        console.log(response)
+        console.log(soFar)
+        connection.query(`UPDATE employees SET role_id = ${response['Choose new role']} WHERE id=${soFar['Choose Employee']}`, (err, res) => {
+          if (err){
+            console.log(err)
+          } 
+          console.log('\n')
+          console.log(`Successfully updated employee!`)
+          console.log('\n')
+          init()
+        })
+      })
     })
-}
+  } )
+  
+  })}
 
 
+    // connection.query(`UPDATE employees SET role_id =${role_id} WHERE id=${employee_id};`, (err, res) => {
+    //     if(err){
+    //         console.error(err)
+    //     } console.log('Success' + res)
+    // })
 
 
 const deleteDepartment = (dept_id) => {
@@ -222,6 +243,7 @@ const deleteDepartment = (dept_id) => {
                             console.log('Success!')
                         })
 }
+
 const deleteRole = (role_id) => {
     connection.query(`DELETE FROM roles WHERE id =${role_id}`, (err, res) => {
                             if(err){
@@ -230,6 +252,7 @@ const deleteRole = (role_id) => {
                             console.log('Success!')
                         })
 }
+
 const deleteEmployee = (employee_id) => {
     connection.query(`DELETE FROM employees WHERE id =${employee_id}`, (err, res) => {
                             if(err){
@@ -273,7 +296,19 @@ const init = async () => {
           },
           {
             name: 'Edit employee role',
-            value: 'editEmployee',
+            value: 'editEmployeeRole',
+          },
+          {
+            name: 'Delete a department',
+            value: 'deleteDepartment'
+          },
+          {
+            name: 'Delete a role',
+            value: 'deleteRole'
+          },
+          {
+            name: 'Delete an employee',
+            value: 'deleteEmployee'
           },
           {
             name: 'Quit',
@@ -288,7 +323,6 @@ const init = async () => {
 
 
   const addDeptQuery =  (department_name) => {
-
     connection.query(`INSERT INTO departments (dept_name)
                         VALUES ("${department_name}")`, (err, res) => {
                             if(err){
@@ -304,11 +338,6 @@ const init = async () => {
   };
 
 
-
-
-
-
-
   const handleChoice =  (choice) => {
     (choice === 'quit') ? console.log('See you next time!') :  again(choice)
   }
@@ -322,12 +351,19 @@ const init = async () => {
         break;
         case 'viewAllRoles' : viewAllRoles();
         break;
-        case 'addDepartment' :  addDepartment('test');
+        case 'addDepartment' :  addDepartment();
         break;
-        case 'addRole' :  addRole('Test', 90000, 1);
+        case 'addRole' :  addRole();
         break;
-        case 'addEmployee' : addEmployee('Test', "Person", "1", "1")
+        case 'addEmployee' : addEmployee()
         break;
+        case 'editEmployeeRole' : editEmployeeRole();
+        break;
+        case 'deleteDepartment' : deleteDepartment();
+        break;
+        case 'deleteRole' : deleteRole();
+        break;
+        case 'deleteEmployee' : deleteEmployee();
         default: console.log('this is default'); 
     }
   }
@@ -338,7 +374,6 @@ const init = async () => {
 
    function again(choice)  {
     switchy(choice)
-        
   }
 
   
