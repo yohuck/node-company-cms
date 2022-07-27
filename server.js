@@ -1,9 +1,6 @@
-// const inquirer = require('inquirer')
 const connection = require('./config/config.js');
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
-
-
 
 const viewAllDepartments = () => {
     connection.query(`SELECT * FROM DEPARTMENTS`, (err, res) => {
@@ -29,10 +26,6 @@ const viewAllRoles = () => {
     })
 }
 
-
-
-            // SELECT employees.id, first_name, last_name, title, salary, dept_name CONCAT(manager.first_name,' ', manager.last_name) AS manager FROM employees LEFT JOIN employee manager ON employee.manager_id = managers.id JOIN roles ON employees.role_id = roles.id JOIN departments ON roles.department_id = departments.id  
-            // LEFT JOIN employee manager ON employees.manager_id = managers.id
 const viewAllEmployees = () => {
     connection.query(`SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.dept_name, roles.salary, CONCAT(manager.first_name,' ', manager.last_name) AS manager FROM employees LEFT JOIN employees manager ON employees.manager_id = manager.id JOIN roles on employees.role_id = roles.id INNER JOIN departments on roles.department_id = departments.id`, (err, res) => {
       if (err) {
@@ -45,7 +38,7 @@ const viewAllEmployees = () => {
     })
 }
 
-const  addDepartment = () => {
+const addDepartment = () => {
     inquirer
     .prompt([
       {
@@ -57,8 +50,9 @@ const  addDepartment = () => {
     .then((response) => addDeptQuery(response.dept_name)
     );
 }
-    
-const  addRole = () => {
+  
+
+const addRole = () => {
     inquirer
     .prompt([
       {
@@ -81,7 +75,7 @@ const  addRole = () => {
     );
 }
 
-const  addEmployee = () => {
+const addEmployee = () => {
     inquirer
     .prompt([
         {
@@ -134,7 +128,7 @@ const  addEmployee = () => {
     })
 }
 
-let = getChoicesManagers = () => {
+const getChoicesManagers = () => {
     connection.query(`SELECT * FROM employees`, (err, res) => {
         if (err) {
           console.error(err)
@@ -180,9 +174,7 @@ const addEmployeeQuery = (first_name, last_name, role_id, manager_id) => {
                         init()
 }
 
-
 const editEmployeeRole = () => {
-
   connection.query("SELECT * FROM employees", (error, response) => {
     if (error) console.error(error)
     inquirer.prompt([{
@@ -224,7 +216,6 @@ const editEmployeeRole = () => {
       })
     })
   } )
-  
   })}
 
 
@@ -254,7 +245,6 @@ const deleteEmployee = (employee_id) => {
                             console.log('Success!')
                         })
 }
-
 
 const init = async () => {
     const result = await inquirer.prompt([
@@ -315,7 +305,7 @@ const init = async () => {
   };
 
 
-  const addDeptQuery =  (department_name) => {
+const addDeptQuery =  (department_name) => {
     connection.query(`INSERT INTO departments (dept_name)
                         VALUES ("${department_name}")`, (err, res) => {
                             if(err){
@@ -327,16 +317,15 @@ const init = async () => {
     console.log('Successfully added department')
     console.log('\n')
     init()
-
   };
 
 
-  const handleChoice =  (choice) => {
+const handleChoice =  (choice) => {
     (choice === 'quit') ? console.log('See you next time!') :  again(choice)
   }
 
 
-  let switchy = (choice) => {
+const switchy = (choice) => {
     switch  (choice) {
         case 'viewAllDepartments':  viewAllDepartments();
         break;
@@ -361,14 +350,10 @@ const init = async () => {
     }
   }
 
-
-
-let again = choice =>  {
+const again = choice =>  {
     switchy(choice)
   }
   
 
-
-
-
+  
 init()
