@@ -18,7 +18,7 @@ const viewAllDepartments = () => {
 }
 
 const viewAllRoles = () => {
-    connection.query(`SELECT * FROM ROLES`, (err, res) => {
+    connection.query(`SELECT roles.id, title, salary, dept_name FROM ROLES JOIN departments ON roles.department_id = departments.id`, (err, res) => {
       if (err) {
         console.error(err)
       }
@@ -29,8 +29,12 @@ const viewAllRoles = () => {
     })
 }
 
+
+
+            // SELECT employees.id, first_name, last_name, title, salary, dept_name CONCAT(manager.first_name,' ', manager.last_name) AS manager FROM employees LEFT JOIN employee manager ON employee.manager_id = managers.id JOIN roles ON employees.role_id = roles.id JOIN departments ON roles.department_id = departments.id  
+            // LEFT JOIN employee manager ON employees.manager_id = managers.id
 const viewAllEmployees = () => {
-    connection.query(`SELECT * FROM employees`, (err, res) => {
+    connection.query(`SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.dept_name, roles.salary, CONCAT(manager.first_name,' ', manager.last_name) AS manager FROM employees LEFT JOIN employees manager ON employees.manager_id = manager.id JOIN roles on employees.role_id = roles.id INNER JOIN departments on roles.department_id = departments.id`, (err, res) => {
       if (err) {
         console.error(err)
       }
@@ -195,7 +199,6 @@ const editEmployeeRole = () => {
       }
   ]).then(response => {
     let soFar = response;
-    console.log(soFar)
     connection.query("SELECT * FROM roles", (error, response) => {
       if(error) console.error(error)
       inquirer.prompt([{
@@ -206,12 +209,9 @@ const editEmployeeRole = () => {
             name: (`${title}`),
             value: id,
           }))
-          console.log(rolesArr)
           return rolesArr
         }
       }]).then(response => {
-        console.log(response)
-        console.log(soFar)
         connection.query(`UPDATE employees SET role_id = ${response['Choose new role']} WHERE id=${soFar['Choose Employee']}`, (err, res) => {
           if (err){
             console.log(err)
@@ -226,13 +226,6 @@ const editEmployeeRole = () => {
   } )
   
   })}
-
-
-    // connection.query(`UPDATE employees SET role_id =${role_id} WHERE id=${employee_id};`, (err, res) => {
-    //     if(err){
-    //         console.error(err)
-    //     } console.log('Success' + res)
-    // })
 
 
 const deleteDepartment = (dept_id) => {
@@ -370,12 +363,9 @@ const init = async () => {
 
 
 
-
-
-   function again(choice)  {
+let again = choice =>  {
     switchy(choice)
   }
-
   
 
 
